@@ -17,16 +17,17 @@ void initActuators(){
 
 
 }
+// ---------------------- //
 
 /*
-  Update the LCD display accordingly to the inputs.
+  set the LCD display accordingly to the inputs.
   > refValue:     the reference value that will be displayed in the first line;
   > actualValue:  last value of the given reading
   > controlMode:  0-Manual mode, 1-Speed control mode. Only changes the display information (% or RPM)  
   Returns nothing.
 */
 
-void updateDisplay(int refValue, int actualValue, bool controlMode){
+void setDisplay(int refValue, int actualValue, bool controlMode){
   
   // First check which control mode the program is working on
   if (controlMode) {
