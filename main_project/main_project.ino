@@ -9,6 +9,8 @@
 // === PIN MAPPING
 #define speedSensorPin 2
 #define speedReferencePin 54
+#define startButtonPin 19
+#define stopButtonPin 18
 
 // === CONSTANTS
 #define displayAddress 0x27
@@ -31,8 +33,8 @@ char line0[16];                              // buffer char vector for the line0
 char line1[16];                              // buffer char vector for the line1 of the display
 
 // == START and STOP push buttons
-bool SW_START = 0;
-bool SW_STOP  = 0;
+bool startButtonStatus = 0;
+bool stopButtonStatus  = 0;
 
 // == Swithes variables (NOT push button types)
 
@@ -50,23 +52,14 @@ void setup() {
 // === LOOP, code executed in loop after the SETUP part
 void loop() {
 
-  //tempDebug = ;
   setDisplay(getSpeedReference(), getActualSpeed(), 1);  // * SHALL BE INSIDE writeOutputs() after debugging...
-
-  //readSensors();
-  //executeProgram();
-  //writeOutputs();
-
-  //Serial.print(dPulse);
-  //Serial.print(", ");
-  //Serial.print(dTime);
-  //Serial.print(", ");
-  //Serial.print(speedSensorCount);
-  //Serial.print(", ");
-  //Serial.print(speedSensorCountLastTime);
-  //Serial.print(", ");
-  //Serial.println();
-  //Serial.println(dTime + ", " + dPulse);
-
-  delay(2000);
+  if (startButtonStatus){
+    Serial.println("botao START pressionado");
+    startButtonStatus = 0;
+  }
+  if (stopButtonStatus) {
+    Serial.println("botao STOP pressionado");
+    stopButtonStatus = 0;
+  }   
+  delay(500);
 }

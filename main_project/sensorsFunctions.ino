@@ -13,7 +13,16 @@ void initSensors(){
   // no need to initiate the speed refence sensor since it is a analog input;
 
   // set the interruption pin for the speed sensor and the function to deal with it
-  attachInterrupt(digitalPinToInterrupt(speedSensorPin), countSensorHall, RISING);
+  attachInterrupt(digitalPinToInterrupt(speedSensorPin), countSensorHallISR, RISING);
+
+  // set interruption pin for the START button
+  pinMode(startButtonPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(startButtonPin), startButtonISR, CHANGE);
+
+  // set interruption pin for the STOP button
+  pinMode(stopButtonPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(stopButtonPin), stopButtonISR, CHANGE);
+  
 
 }
 
@@ -22,7 +31,7 @@ void initSensors(){
   It simply increases the variable speedSensorCount each time is called for further calculation;
   Returns: void (since it is a interruption deal function)
 */
-void countSensorHall(){
+void countSensorHallISR(){
   speedSensorCount++;
 }
 
@@ -47,18 +56,30 @@ unsigned long getActualSpeed(){
   
   dTime  = millis() - speedSensorLastTime;
   dPulse = speedSensorCount - speedSensorCountLastTime;
-  //Serial.println(dTime);
-  //Serial.println(dPulse);
-  //Serial.println(speedSensorCount);
-  //Serial.println(speedSensorCountLastTime);
 
   speedLastValue = 60000*dPulse/dTime;
-  //updating the last value of speed;
-  //Serial.println(speedLastValue);
-  
+
   // updating the variables for next loop
   speedSensorLastTime = millis();
   speedSensorCountLastTime = speedSensorCount;
 
   return speedLastValue;
+}
+
+/*
+  Set the status of the startButtonStatus variable to 1 when is called.
+  startButtonStatus variable must be trated and set again to 0
+  Returns: void (ISR Interruption Service Routine);
+*/
+void startButtonISR(){
+  startButtonStatus = 1;
+}
+
+/*
+  Set the status of the stopButtonStatus variable to 1 when is called.
+  stopButtonStatus variable must be trated and set again to 0
+  Returns: void (ISR Interruption Service Routine);
+*/
+void stopButtonISR(){
+  stopButtonStatus = 1;
 }
