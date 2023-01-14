@@ -17,11 +17,11 @@ void initSensors(){
 
   // set interruption pin for the START button
   pinMode(startButtonPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(startButtonPin), startButtonISR, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(startButtonPin), startButtonISR, FALLING);
 
   // set interruption pin for the STOP button
   pinMode(stopButtonPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(stopButtonPin), stopButtonISR, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(stopButtonPin), stopButtonISR, FALLING);
   
 
 }
@@ -42,9 +42,7 @@ void countSensorHallISR(){
   Returns: int, value of speed already converted in RPM;
 */
 int getSpeedReference(){
-  int val;
-  val = analogRead(speedReferencePin)*2 - 1024;
-  return val;
+  return analogRead(speedReferencePin)*2 - 1024;
 }
 
 /*
@@ -58,7 +56,9 @@ unsigned long getActualSpeed(){
   dPulse = speedSensorCount - speedSensorCountLastTime;
 
   speedLastValue = 60000*dPulse/dTime;
-
+  //Serial.println(dPulse);
+  //Serial.println(dTime);
+  //Serial.println(speedLastValue);
   // updating the variables for next loop
   speedSensorLastTime = millis();
   speedSensorCountLastTime = speedSensorCount;
@@ -73,6 +73,8 @@ unsigned long getActualSpeed(){
 */
 void startButtonISR(){
   startButtonStatus = 1;
+  //Serial.println("INT START");
+
 }
 
 /*
@@ -82,4 +84,5 @@ void startButtonISR(){
 */
 void stopButtonISR(){
   stopButtonStatus = 1;
+  //Serial.println("INT STOP");
 }

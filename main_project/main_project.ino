@@ -20,12 +20,15 @@
 // === GLOBAL VARIABLES
 
 // == Speed sensor calculation
-unsigned long speedSensorCount = 0;          // to count the pulses of the speed sensor
+volatile unsigned long speedSensorCount = 0;          // to count the pulses of the speed sensor
 unsigned long speedSensorCountLastTime = 0;  // to be used as delta pulse count for speed calculationio
 unsigned long speedSensorLastTime = 0;       // to be used as delta time for speed calculation
 int dTime = 0;          // used in getActualSpeed function                
 int dPulse = 0;         // used in getActualSpeed function
 int speedLastValue = 0; // used in getActualSpeed function
+
+int actualSpeed = 0;
+int refSpeed = 0;
 
 // == LCD display
 LiquidCrystal_I2C display(displayAddress, displayCol, displayLin);  // LCD display instance declaration
@@ -33,12 +36,12 @@ char line0[16];                              // buffer char vector for the line0
 char line1[16];                              // buffer char vector for the line1 of the display
 
 // == START and STOP push buttons
-bool startButtonStatus = 0;
-bool stopButtonStatus  = 0;
+volatile int startButtonStatus = 0;
+volatile int stopButtonStatus  = 0;
 
 // == Swithes variables (NOT push button types)
 
-
+int temp;
 // === SETUP, code executed one time since uC started
 void setup() {
 
@@ -52,14 +55,30 @@ void setup() {
 // === LOOP, code executed in loop after the SETUP part
 void loop() {
 
-  setDisplay(getSpeedReference(), getActualSpeed(), 1);  // * SHALL BE INSIDE writeOutputs() after debugging...
-  if (startButtonStatus){
-    Serial.println("botao START pressionado");
-    startButtonStatus = 0;
-  }
+  
+  //Serial.println(stopButtonStatus);
   if (stopButtonStatus) {
-    Serial.println("botao STOP pressionado");
     stopButtonStatus = 0;
-  }   
-  delay(500);
+    //Serial.println("botao STOP pressionado");
+    temp = temp+1;
+  }
+
+  //Serial.println(startButtonStatus);
+  if (startButtonStatus){
+    startButtonStatus = 0;
+    //Serial.println("botao START pressionado");
+    temp = temp-1;
+  }
+  Serial.println(temp);
+  
+  delay(200);
+  
+  refSpeed = getSpeedReference();
+  actualSpeed = getActualSpeed();
+  //Serial.println(actualSpeed);
+  setDisplay(refSpeed, actualSpeed, 1);  // * SHALL BE INSIDE writeOutputs() after debugging...
+  //setDisplay(getSpeedReference(), getActualSpeed(), 1);  // * SHALL BE INSIDE writeOutputs() after debugging...
+
+  //https://www.tutorialspoint.com/how-to-use-volatile-variables-in-arduino
+
 }
