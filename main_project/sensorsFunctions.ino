@@ -26,12 +26,11 @@ void countSensorHall(){
   speedSensorCount++;
 }
 
-
 /*
-  get the value of the speedReference sensor;
+  Get the value of the speedReference sensor;
   Basically reads the analog of the Speed reference pin and make some small mathematical 
   processing in it;
-  Returns: int 
+  Returns: int, value of speed already converted in RPM;
 */
 int getSpeedReference(){
   int val;
@@ -39,24 +38,27 @@ int getSpeedReference(){
   return val;
 }
 
-void updateActualSpeed(){
+/*
+  Get the actual speed of turbine axis;
+  Reads the pulses between this function call and calculate the speed;
+  Returns: int, value of speed already converted in RPM;
+*/
+unsigned long getActualSpeed(){
   
   dTime  = millis() - speedSensorLastTime;
   dPulse = speedSensorCount - speedSensorCountLastTime;
-  Serial.println(dTime);
-  Serial.println(dPulse);
-  Serial.println(speedSensorCount);
-  Serial.println(speedSensorCountLastTime);
+  //Serial.println(dTime);
+  //Serial.println(dPulse);
+  //Serial.println(speedSensorCount);
+  //Serial.println(speedSensorCountLastTime);
 
   speedLastValue = 60000*dPulse/dTime;
   //updating the last value of speed;
-  Serial.println(speedLastValue);
+  //Serial.println(speedLastValue);
   
   // updating the variables for next loop
   speedSensorLastTime = millis();
   speedSensorCountLastTime = speedSensorCount;
 
-  
-
-
+  return speedLastValue;
 }
