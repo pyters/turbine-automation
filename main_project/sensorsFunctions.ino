@@ -23,6 +23,19 @@ void initSensors(){
   pinMode(stopButtonPin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(stopButtonPin), stopButtonISR, FALLING);
   
+  // initialization pin for the phase fault sensor;
+  pinMode(phaseFaultPin, INPUT_PULLUP);
+  
+  // initialization pin control mode;
+  pinMode(controlModePin, INPUT_PULLUP);
+
+  // initialization pin for end of travel sensors of the FINs;
+  pinMode(finPosStopPin, INPUT_PULLUP);
+  pinMode(finNegStopPin, INPUT_PULLUP);
+
+  // initialization pin for end of travel sensors of the WATER VALVE;
+  pinMode(waterValvePosStopPin, INPUT_PULLUP);
+  pinMode(waterValveNegStopPin, INPUT_PULLUP);
 
 }
 
@@ -50,10 +63,11 @@ int getSpeedReference(){
   Reads the pulses between this function call and calculate the speed;
   Returns: int, value of speed already converted in RPM;
 */
-unsigned long getActualSpeed(){
+int getActualSpeed(){
   
   dTime  = millis() - speedSensorLastTime;
-  dPulse = speedSensorCount - speedSensorCountLastTime;
+  dPulse = speedSensorCount;
+  speedSensorCount = 0;
 
   speedLastValue = 60000*dPulse/dTime;
   //Serial.println(dPulse);
@@ -61,7 +75,7 @@ unsigned long getActualSpeed(){
   //Serial.println(speedLastValue);
   // updating the variables for next loop
   speedSensorLastTime = millis();
-  speedSensorCountLastTime = speedSensorCount;
+  //speedSensorCountLastTime = speedSensorCount;
 
   return speedLastValue;
 }
@@ -73,7 +87,6 @@ unsigned long getActualSpeed(){
 */
 void startButtonISR(){
   startButtonStatus = 1;
-  //Serial.println("INT START");
 
 }
 
@@ -84,5 +97,67 @@ void startButtonISR(){
 */
 void stopButtonISR(){
   stopButtonStatus = 1;
-  //Serial.println("INT STOP");
+}
+
+/*
+  Read and return the DIGITAL status of the phase fault sensor
+  Returns:  0 if there is NO FAULT;
+            1 if there is fault;
+*/
+int getPhaseFaultCondition(){
+  return digitalRead(phaseFaultPin);
+}
+
+/*
+  Read and return the DIGITAL status of the switch that controls the control mode
+  Returns:  0 for MANUAL control mode; 
+            1 for SPEED control mode;
+*/
+int getControlMode(){
+  return digitalRead(controlModePin);
+}
+
+/*
+  Read and return the DIGITAL status of the POSITIVE FIN TRAVEL END SENSOR
+  Returns:  0 if sensor is no activated;
+            1 if sensor is activated, ! MOTOR IS IN THE END OF THE TRAVEL !;
+*/
+int getFinEndSensorPositiveStatus(){
+  return digitalRead(finPosStopPin);
+}
+
+/*
+  Read and return the DIGITAL status of the NEGATIVE FIN TRAVEL END SENSOR
+  Returns:  0 if sensor is no activated;
+            1 if sensor is activated, ! MOTOR IS IN THE END OF THE TRAVEL !;
+*/
+int getFinEndSensorNegativeStatus(){
+  return digitalRead(finNegStopPin);
+}
+
+/*
+  Read and return the DIGITAL status of the POSITIVE WATER MOTOR TRAVEL END SENSOR
+  Returns:  0 if sensor is no activated;
+            1 if sensor is activated, ! MOTOR IS IN THE END OF THE TRAVEL !;
+*/
+int getWaterValveEndSensorPositiveStatus(){
+  return digitalRead(waterValvePosStopPin);
+}
+
+/*
+  Read and return the DIGITAL status of the NEGATIVE WATER MOTOR TRAVEL END SENSOR
+  Returns:  0 if sensor is no activated;
+            1 if sensor is activated, ! MOTOR IS IN THE END OF THE TRAVEL !;
+*/
+int getWaterValveEndSensorNegativeStatus(){
+  return digitalRead(waterValveNegStopPin);
+}
+
+/*
+  Get the value of the FIN POSITION sensor;
+  Basically reads the analog of the fin position sensor and make convertion to the total course
+  Returns: int, in percetange of the course;
+*/
+int getFinPosition(){
+  return analogRead(finPosSensorPin);
 }
