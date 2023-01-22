@@ -87,6 +87,7 @@ int getActualSpeed(){
 */
 void startButtonISR(){
   startButtonStatus = 1;
+  //Serial.println("entrou int");
 
 }
 
@@ -160,4 +161,36 @@ int getWaterValveEndSensorNegativeStatus(){
 */
 int getFinPosition(){
   return analogRead(finPosSensorPin);
+}
+
+/*
+  Get if START BUTTON was pressed;
+  It will return 1 if the Start Button was pressed, after that it will write zero on the variable
+  Returns:  0 if the START BUTTON was NOT pressed;
+            1 if the START BUTTON WAS PRESSED, after it sets the variable to zero.
+*/
+int getStartButtonStatus(){
+  if(startButtonStatus){
+    startButtonStatus = 0;
+    return 1;
+  }
+  else {
+    return 0;
+  }
+}
+
+/*
+  Get if STOP BUTTON was pressed;
+  It will return 1 if the Stop Button was pressed, after that it will write zero on the variable
+  Returns:  0 if the STOP BUTTON was NOT pressed;
+            1 if the STOP BUTTON WAS PRESSED, after it sets the variable to zero.
+*/
+int getStopButtonStatus(){
+  if(stopButtonStatus){
+    stopButtonStatus = 0;
+    return 1;
+  }
+  else {
+    return 0;
+  }
 }

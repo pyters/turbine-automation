@@ -65,28 +65,14 @@ void setup() {
 void loop() {
 
   
-  //Serial.println(stopButtonStatus);
-  if (stopButtonStatus) {
-    stopButtonStatus = 0;
-    //Serial.println("botao STOP pressionado");
-    temp = temp+1;
-  }
+  delay(1000);
 
-  //Serial.println(startButtonStatus);
-  if (startButtonStatus){
-    startButtonStatus = 0;
-    //Serial.println("botao START pressionado");
-    temp = temp-1;
-  }
-  Serial.println(temp);
+  lcdDisplaySpeed();
   
-  delay(500);
-  
-  refSpeed = getSpeedReference();
-  actualSpeed = getActualSpeed();
-  setDisplay(refSpeed, actualSpeed, 1);  // * SHALL BE INSIDE writeOutputs() after debugging...
-  
+
   Serial.println("Sensors testing mode...");
+  Serial.print("start button:                     "); Serial.println(getStartButtonStatus());
+  Serial.print("stop button:                      "); Serial.println(getStopButtonStatus());
   Serial.print("fault condition:                  "); Serial.println(getPhaseFaultCondition());
   Serial.print("control mode:                     "); Serial.println(getControlMode());
   Serial.print("fin end travel sensor positive:   "); Serial.println(getFinEndSensorPositiveStatus());

@@ -27,22 +27,19 @@ void initActuators(){
   Returns nothing.
 */
 
-void setDisplay(int refValue, int actualValue, bool controlMode){
+int setSpeedDisplay(int refValue, int actualValue){
   
-  // First check which control mode the program is working on
-  if (controlMode) {
-    // if the program is working on SPEED CONTROL mode, show this in the display
     
-    // LINE 0 of the display formatting
-    sprintf(line0, "REF. [RPM]  %4u", refValue);  // use %03u for leading zero or %3u for no-leading zero.
-    display.setCursor(0, 0);                      // set the cursor to line 0, column 0
-    display.print(line0);                         // print the buffer line0
-    
-    // LINE 1 of the display formatting, same idea of the LINE 0
-    sprintf(line1, "VELOCIDADE  %4u", actualValue);
-    display.setCursor(0, 1);
-    display.print(line1);
-  } else {
+  // LINE 0 of the display formatting
+  sprintf(line0, "REF. [RPM]  %4u", refValue);  // use %03u for leading zero or %3u for no-leading zero.
+  display.setCursor(0, 0);                      // set the cursor to line 0, column 0
+  display.print(line0);                         // print the buffer line0
+  
+  // LINE 1 of the display formatting, same idea of the LINE 0
+  sprintf(line1, "VELOCIDADE  %4u", actualValue);
+  display.setCursor(0, 1);
+  display.print(line1);
+  /*} else {
     // if the program is working on MANUAL CONTROL mode, show this in the display
 
     // LINE 0 of the display formatting, same idea of the formatting for the speed control above
@@ -54,6 +51,25 @@ void setDisplay(int refValue, int actualValue, bool controlMode){
     sprintf(line1, "POSICAO      %03u", actualValue);
     display.setCursor(0, 1);
     display.print(line1);
+    
   } 
+  */
+  return 0;
+}
 
+
+void lcdDisplaySpeed(){
+  // reading the reference and actual speed... 
+  // By some reason when input it direcly in below sprintf function, the pushbuttom interruption does not works well...
+  refSpeed = getSpeedReference();
+  actualSpeed = getActualSpeed();
+
+  sprintf(line0, "REF. [RPM]  %4u", refSpeed);  // use %03u for leading zero or %3u for no-leading zero.
+  display.setCursor(0, 0);                      // set the cursor to line 0, column 0
+  display.print(line0);                         // print the buffer line0
+  
+  // LINE 1 of the display formatting, same idea of the LINE 0
+  sprintf(line1, "VELOCIDADE  %4u", actualSpeed);
+  display.setCursor(0, 1);
+  display.print(line1);
 }
