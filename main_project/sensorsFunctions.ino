@@ -16,15 +16,15 @@ void initSensors(){
   attachInterrupt(digitalPinToInterrupt(speedSensorPin), countSensorHallISR, RISING);
 
   // set interruption pin for the START button
-  pinMode(startButtonPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(startButtonPin), startButtonISR, FALLING);
+  pinMode(startButtonPin, INPUT);
+  //attachInterrupt(digitalPinToInterrupt(startButtonPin), startButtonISR, RISING);
 
   // set interruption pin for the STOP button
-  pinMode(stopButtonPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(stopButtonPin), stopButtonISR, FALLING);
+  pinMode(stopButtonPin, INPUT);
+  //attachInterrupt(digitalPinToInterrupt(stopButtonPin), stopButtonISR, RISING);
   
   // initialization pin for the phase fault sensor;
-  pinMode(phaseFaultPin, INPUT_PULLUP);
+  pinMode(phaseFaultPin, INPUT);
   
   // initialization pin control mode;
   pinMode(controlModePin, INPUT_PULLUP);
@@ -34,8 +34,8 @@ void initSensors(){
   pinMode(finNegStopPin, INPUT_PULLUP);
 
   // initialization pin for end of travel sensors of the WATER VALVE;
-  pinMode(waterValvePosStopPin, INPUT_PULLUP);
-  pinMode(waterValveNegStopPin, INPUT_PULLUP);
+  //pinMode(waterValvePosStopPin, INPUT_PULLUP);
+  //inMode(waterValveNegStopPin, INPUT_PULLUP);
 
 }
 
@@ -55,7 +55,7 @@ void countSensorHallISR(){
   Returns: int, value of speed already converted in RPM;
 */
 int getSpeedReference(){
-  return analogRead(speedReferencePin)*2 - 1024;
+  return (analogRead(speedReferencePin)*-1 +1023);
 }
 
 /*
@@ -66,39 +66,21 @@ int getSpeedReference(){
 int getActualSpeed(){
   
   dTime  = millis() - speedSensorLastTime;
-  dPulse = speedSensorCount;
-  speedSensorCount = 0;
+  speedSensorLastTime = millis();
+
+  dPulse = speedSensorCount-lastSpeedSensorCount;
+  lastSpeedSensorCount = speedSensorCount;
 
   speedLastValue = 60000*dPulse/dTime;
   //Serial.println(dPulse);
   //Serial.println(dTime);
   //Serial.println(speedLastValue);
   // updating the variables for next loop
-  speedSensorLastTime = millis();
   //speedSensorCountLastTime = speedSensorCount;
 
   return speedLastValue;
 }
 
-/*
-  Set the status of the startButtonStatus variable to 1 when is called.
-  startButtonStatus variable must be trated and set again to 0
-  Returns: void (ISR Interruption Service Routine);
-*/
-void startButtonISR(){
-  startButtonStatus = 1;
-  //Serial.println("entrou int");
-
-}
-
-/*
-  Set the status of the stopButtonStatus variable to 1 when is called.
-  stopButtonStatus variable must be trated and set again to 0
-  Returns: void (ISR Interruption Service Routine);
-*/
-void stopButtonISR(){
-  stopButtonStatus = 1;
-}
 
 /*
   Read and return the DIGITAL status of the phase fault sensor
@@ -111,7 +93,7 @@ int getPhaseFaultCondition(){
 
 /*
   Read and return the DIGITAL status of the switch that controls the control mode
-  Returns:  0 for MANUAL control mode; 
+  Returns:  0 for FIXED REFERENCE control mode; 
             1 for SPEED control mode;
 */
 int getControlMode(){
@@ -136,47 +118,16 @@ int getFinEndSensorNegativeStatus(){
   return digitalRead(finNegStopPin);
 }
 
-/*
-  Read and return the DIGITAL status of the POSITIVE WATER MOTOR TRAVEL END SENSOR
-  Returns:  0 if sensor is no activated;
-            1 if sensor is activated, ! MOTOR IS IN THE END OF THE TRAVEL !;
-*/
-int getWaterValveEndSensorPositiveStatus(){
-  return digitalRead(waterValvePosStopPin);
-}
-
-/*
-  Read and return the DIGITAL status of the NEGATIVE WATER MOTOR TRAVEL END SENSOR
-  Returns:  0 if sensor is no activated;
-            1 if sensor is activated, ! MOTOR IS IN THE END OF THE TRAVEL !;
-*/
-int getWaterValveEndSensorNegativeStatus(){
-  return digitalRead(waterValveNegStopPin);
-}
-
-/*
-  Get the value of the FIN POSITION sensor;
-  Basically reads the analog of the fin position sensor and make convertion to the total course
-  Returns: int, in percetange of the course;
-*/
-int getFinPosition(){
-  return analogRead(finPosSensorPin);
-}
 
 /*
   Get if START BUTTON was pressed;
   It will return 1 if the Start Button was pressed, after that it will write zero on the variable
-  Returns:  0 if the START BUTTON was NOT pressed;
-            1 if the START BUTTON WAS PRESSED, after it sets the variable to zero.
+  Returns:  0 if the START BUTTON is PRESSED;
+            1 if the START BUTTON is RELEASED.
 */
 int getStartButtonStatus(){
-  if(startButtonStatus){
-    startButtonStatus = 0;
-    return 1;
-  }
-  else {
-    return 0;
-  }
+  
+  return !digitalRead(startButtonPin);
 }
 
 /*
@@ -186,11 +137,6 @@ int getStartButtonStatus(){
             1 if the STOP BUTTON WAS PRESSED, after it sets the variable to zero.
 */
 int getStopButtonStatus(){
-  if(stopButtonStatus){
-    stopButtonStatus = 0;
-    return 1;
-  }
-  else {
-    return 0;
-  }
+
+    return !digitalRead(stopButtonPin);
 }
