@@ -39,44 +39,13 @@ void initActuators(){
   Returns nothing.
 */
 
-int setSpeedDisplay(int refValue, int actualValue){
-  
-    
-  // LINE 0 of the display formatting
-  sprintf(line0, "REF. [RPM]  %4u", refValue);  // use %03u for leading zero or %3u for no-leading zero.
-  display.setCursor(0, 0);                      // set the cursor to line 0, column 0
-  display.print(line0);                         // print the buffer line0
-  
-  // LINE 1 of the display formatting, same idea of the LINE 0
-  sprintf(line1, "VELOCIDADE  %4u", actualValue);
-  display.setCursor(0, 1);
-  display.print(line1);
-  /*} else {
-    // if the program is working on MANUAL CONTROL mode, show this in the display
-
-    // LINE 0 of the display formatting, same idea of the formatting for the speed control above
-    sprintf(line0, "REF. [%%]     %03u", refValue); 
-    display.setCursor(0, 0);
-    display.print(line0);
-    
-    // LINE 1 of the display formatting, same idea of the LINE 0
-    sprintf(line1, "POSICAO      %03u", actualValue);
-    display.setCursor(0, 1);
-    display.print(line1);
-    
-  } 
-  */
-  return 0;
-}
-
-
-void lcdDisplaySpeed(){
+void lcdDisplaySpeed(int actualSpeed){
   // reading the reference and actual speed... 
   // By some reason when input it direcly in below sprintf function, the pushbuttom interruption does not works well...
-  int actualSpeed;
+  //int actualSpeed;
   int refSpeed;
   refSpeed = getSpeedReference();
-  actualSpeed = getActualSpeed();
+  //actualSpeed = getActualSpeed();
   //Serial.println(actualSpeed);
   //actualSpeed = 208;
 
@@ -91,6 +60,21 @@ void lcdDisplaySpeed(){
   display.setCursor(0, 1);
   display.print(line1);
   //Serial.println(line1);
+}
+
+
+void lcdDisplayMessage(char lin0[16], char lin1[16]){
+  
+  display.clear();  
+  
+  display.setCursor(0, 0);                      // set the cursor to line 0, column 0
+  display.print(lin0);                         // print the buffer line0
+  //Serial.println(line0);
+  // LINE 1 of the display formatting, same idea of the LINE 0
+  display.setCursor(0, 1);
+  display.print(lin1);
+  //Serial.println(line1);
+
 }
 
 /*

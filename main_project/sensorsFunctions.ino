@@ -72,13 +72,58 @@ int getActualSpeed(){
   lastSpeedSensorCount = speedSensorCount;
 
   speedLastValue = 60000*dPulse/dTime;
-  //Serial.println(dPulse);
-  //Serial.println(dTime);
+  // Serial.print("dPulse "); Serial.println(dPulse);
+  // Serial.print("dTime  "); Serial.println(dTime);
   //Serial.println(speedLastValue);
   // updating the variables for next loop
   //speedSensorCountLastTime = speedSensorCount;
+  
+  // speedValue_k = speedLastValue;
+  // speedValue_k = alpha*speedValue_kp+(1+alpha)*speedValue_k;
+  // speedValue_kp = speedValue_k;
 
-  return speedLastValue;
+  //Serial.print("speed  "); Serial.println(speedLastValue);
+  //Serial.print("speed  "); Serial.println(speedValue_k);
+
+  // sum -= samples[index]; // subtract the oldest sample from the sum
+  // samples[index] = speedLastValue; // store the current sample
+  // sum += speedLastValue; // add the current sample to the sum
+  // index = (index + 1) % NUM_SAMPLES; // increment the index and wrap around
+  //int average = sum / NUM_SAMPLES; // calculate the average
+  // use the value of 'average' as needed  
+  // Serial.print("raw speed "); Serial.println(speedLastValue);
+  // Serial.print("average   "); Serial.println(sum / NUM_SAMPLES);
+  
+  // return sum / NUM_SAMPLES;
+
+
+  total = total - readings[readIndex];
+  readings[readIndex] = speedLastValue;
+
+  int sum; //sums the vector to get average after...
+  for (int i = 0; i < numReadings; i++) {
+    sum += readings[i]; // add the current element to the sum
+  }
+
+  // Serial.print(readings[0]); Serial.print(",");
+  // Serial.print(readings[1]); Serial.print(",");
+  // Serial.print(readings[2]); Serial.print(",");
+  // Serial.print(readings[3]); Serial.print(",");
+  // Serial.print(readings[4]); Serial.print(",");
+  // Serial.println("");
+
+  //total = total + readings[readIndex];
+
+  // Serial.print("total depois "); Serial.println(total);
+
+  readIndex = readIndex + 1;
+  if(readIndex >= numReadings){ readIndex = 0; }
+  
+  return sum/numReadings;
+
+  // return total / numReadings;
+
+  // return speedLastValue;
 }
 
 

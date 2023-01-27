@@ -40,7 +40,19 @@ int dTime = 0;          // used in getActualSpeed function
 int dPulse = 0;         // used in getActualSpeed function
 int speedLastValue = 0; // used in getActualSpeed function
 
-//int actualSpeed = 0;
+int speedValue_k =0;    // used for filter;
+int speedValue_kp =0;
+float alpha = 0; // alpha value, zero for no-filter at all;
+
+int actualSpeed = 0;
+
+// moving average filter definitions
+
+const int numReadings  = 6; // 1 for no filter condition
+int readings [numReadings];
+int readIndex  = 0;
+long total  = 0;
+
 //int refSpeed = 0;
 
 
@@ -57,10 +69,31 @@ LiquidCrystal_I2C display(displayAddress, displayCol, displayLin);  // LCD displ
 char line0[16];                              // buffer char vector for the line0 of the display
 char line1[16];                              // buffer char vector for the line1 of the display
 
+// CONTROL variables
+int controlActualSpeed;
+int controlReferenceSpeed;
+int controlError;
+int controlHist = 100;
+int controlHistDead = 100;
+int controlLastState = 0;
+
+// variables used in the ROUTINE.INO
+unsigned long lastTimeMillis1s0 = 0;
+unsigned long lastTimeMillis0s5 = 0;
+int time1s0 = 1000;
+int time0s5 = 500;
+
+int STATE = 0;  // 0 for INITIALIZATION
+                // 1 for CONTROL
+                // 2 for STOP
+
 
 // == Swithes variables (NOT push button types)
 
 int temp;
+
+
+
 // === SETUP, code executed one time since uC started
 void setup() {
 
@@ -68,30 +101,126 @@ void setup() {
 
   initSensors();    // sensors initialization
   initActuators();  // actuators initialization
+
+
 }
 
 
 // === LOOP, code executed in loop after the SETUP part
 void loop() {
   
-  delay(100);
-  lcdDisplaySpeed();
- 
- 
-  if(getStartButtonStatus()){
-    setMotorFins(1); setStartLed(1);
-    delay(2000);
-    setMotorFins(0); setStopLed(0);
-    delay(100);
-  }
-  if(getStopButtonStatus()){
-    setMotorFins(-1); setStopLed(1); 
-    delay(2000);
-    setMotorFins(0); setStopLed(0);
-    delay(100);
+  // setMotorFins(1); 
+  // STATE = -2;
+  // Serial.println(STATE);
+
+  switch (STATE) {
+    case 0:               // INITIALIZATION
+      INITIALIZATION();
+      break;
+
+    case 1:
+      CONTROL();
+      break;
+
+    case 2:               // STOP
+      STOP();
+      break;
+
+    case -1:
+      if ((millis()-lastTimeMillis0s5) > 500){
+        
+        lastTimeMillis0s5 = millis();
+
+        actualSpeed = getActualSpeed();
+        lcdDisplaySpeed(actualSpeed);
+        Serial.println(STATE);
+        }
+      break;
+    case -2:
+      setMotorFins(1); 
+      break;
   }
 
-  /*
+
+/*
+  //setMotorFins(-1);
+ 
+    controlActualSpeed = getActualSpeed();
+    controlReferenceSpeed = getSpeedReference();
+    controlError = controlReferenceSpeed - controlActualSpeed;
+    //Serial.println(controlError);
+    //Serial.println(controlLastState);
+  //  setMotorFins(1);
+
+  lcdDisplaySpeed(controlActualSpeed);
+  delay(500);
+
+  if((controlError > controlHist))
+    if((controlLastState == 0)){
+        controlLastState = 1;
+        setMotorFins(1);
+        delay(1000);
+        Serial.println("entrou 1");
+  }
+  if((controlError < 0))
+    if(controlLastState == 1) {
+      controlLastState = 0;
+      setMotorFins(0);
+      delay(1000);
+      Serial.println("entrou 2");
+  }
+  if((controlError < -1*controlHist))
+    if((controlLastState == 0)){
+      controlLastState = -1;
+      setMotorFins(-1);
+      delay(1000);
+      Serial.println("entrou 3");
+  }
+  if((controlError > 0))
+    if((controlLastState == -1)){
+      controlLastState = 0;
+      setMotorFins(0);
+      delay(1000);
+      Serial.println("entrou 4");
+  }
+  Serial.print("control error=    "); Serial.println(controlError);
+  Serial.print("controlLastState= "); Serial.println(controlLastState);
+   
+   
+   /* 
+    if((controlError > controlHist)){
+        if(controlLastState != 1){
+            Serial.println("entrou");
+            controlLastState = 1;
+            //setMotorFins(0); delay(100);
+            setMotorFins(1);
+        }
+    }
+    if((controlError < controlHist)){
+        if(controlLastState != -1){
+            controlLastState = -1;
+            //setMotorFins(0); delay(100);
+            setMotorFins(-1);
+        }
+    }
+    if((controlError < controlHist) && (controlError < controlHistDead)){
+        if(controlLastState == 1){
+          controlLastState = 0;
+          setMotorFins(0);
+        }
+    }
+    if((controlError > controlHist) && (controlError > controlHistDead)){
+        if(controlLastState == -1){
+          controlLastState = 0;
+          setMotorFins(0);
+        }
+    }
+     
+    delay(1000);
+    lcdDisplaySpeed();
+
+
+    /*
  
   //Serial.println(getActualSpeed());
   
@@ -116,3 +245,6 @@ void loop() {
   */
 
 }
+
+
+
