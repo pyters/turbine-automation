@@ -56,6 +56,7 @@ void countSensorHallISR(){
   processing in it;
   Returns: int, value of speed already converted in RPM;
 */
+<<<<<<< Updated upstream
 int getSpeedReference(){
   
   if(getControlMode()){
@@ -63,6 +64,10 @@ int getSpeedReference(){
   }else{
     return 540;
   }
+=======
+int getReference(){
+  return analogRead(speedReferencePin)*2 - 1024;
+>>>>>>> Stashed changes
 }
 
 /*

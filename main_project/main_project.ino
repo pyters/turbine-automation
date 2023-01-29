@@ -15,6 +15,7 @@
 #define controlModePin 16
 #define finPosStopPin 69
 #define finNegStopPin 68
+<<<<<<< Updated upstream
 //#define waterValvePosStopPin 67
 //#define waterValveNegStopPin 66
 //#define finPosSensorPin 62
@@ -25,6 +26,13 @@
 #define contactorPin 39
 
 
+=======
+#define waterValvePosStopPin 67
+#define waterValveNegStopPin 66
+#define finPosSensorPin 62
+#define motorFin1Pin 53
+#define motorFin2Pin 51
+>>>>>>> Stashed changes
 
 // === CONSTANTS
 #define displayAddress 0x27
@@ -114,6 +122,7 @@ void setup() {
 // === LOOP, code executed in loop after the SETUP part
 void loop() {
   
+<<<<<<< Updated upstream
   // setMotorFins(1); 
   // STATE = -3;
   // Serial.println(STATE);
@@ -267,6 +276,27 @@ void loop() {
   //setDisplay(getSpeedReference(), getActualSpeed(), 1);  // * SHALL BE INSIDE writeOutputs() after debugging...
   */
 
+=======
+  delay(100);
+
+  lcdDisplaySpeed();
+
+  if(getStartButtonStatus){
+    digitalWrite(motorFin1Pin, HIGH);
+    digitalWrite(motorFin1Pin, LOW);
+    delay(500); 
+  }
+
+  if(getStartButtonStatus){
+    digitalWrite(motorFin1Pin, LOW);
+    digitalWrite(motorFin1Pin, HIGH);
+    delay(500);
+  }
+  
+  digitalWrite(motorFin1Pin, LOW);
+  digitalWrite(motorFin1Pin, LOW);
+    
+>>>>>>> Stashed changes
 }
 
 
