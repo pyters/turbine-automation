@@ -18,11 +18,11 @@
 //#define waterValvePosStopPin 67
 //#define waterValveNegStopPin 66
 //#define finPosSensorPin 62
-#define motorFin1Pin 53
-#define motorFin2Pin 51
+#define motorFin1Pin 53 //49
+#define motorFin2Pin 51 //47
 #define ledStartPin 23
 #define ledStopPin 25
-#define contactorPin 35
+#define contactorPin 39
 
 
 
@@ -102,10 +102,10 @@ int temp;
 // === SETUP, code executed one time since uC started
 void setup() {
 
-  Serial.begin(9600);  //if needs serial
+  // Serial.begin(9600);  //if needs serial
 
   initSensors();    // sensors initialization
-  initActuators();  // actuators initialization
+  initActuators() ;  // actuators initialization
 
 
 }
@@ -115,7 +115,7 @@ void setup() {
 void loop() {
   
   // setMotorFins(1); 
-  STATE = -3;
+  // STATE = -3;
   // Serial.println(STATE);
 
   switch (STATE) {
@@ -150,12 +150,15 @@ void loop() {
     case -3:
       digitalWrite(contactorPin, 0);
       digitalWrite(motorFin1Pin,0);
+      digitalWrite(motorFin2Pin,0);
+      
       setStartLed(1);
       setStopLed(0);
       delay(5000);
 
       digitalWrite(contactorPin, 1);
       digitalWrite(motorFin1Pin,1);
+      digitalWrite(motorFin2Pin,1);
       setStartLed(0);
       setStopLed(1);
       delay(5000);
