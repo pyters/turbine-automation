@@ -11,6 +11,7 @@
 */
 void initActuators(){
   // set the initial configs for the LCD display
+  // display.begin(displayCol, displayLin);
   display.init();       //  initializatiton of the LCD display
   display.backlight();  //  turn on the backlight of the display
   display.clear();      //  cleans the display
@@ -26,6 +27,7 @@ void initActuators(){
   pinMode(ledStopPin, OUTPUT);
   digitalWrite(ledStopPin, LOW);
 
+  pinMode(contactorPin, OUTPUT);
 
 
 }
@@ -123,6 +125,21 @@ void setStartLed(int dir){
 */
 
 void setStopLed(int dir){
+  if (dir == 1){
+    digitalWrite(ledStopPin, HIGH);
+  }
+  else{
+    digitalWrite(ledStopPin, LOW);
+  }
+}
+
+/*
+  SET the CONTACTOR to connect the gerator into the AC LINE;
+  1  - LED ON
+  0  - LED OFF
+*/
+
+void setContactor(int dir){
   if (dir == 1){
     digitalWrite(ledStopPin, HIGH);
   }

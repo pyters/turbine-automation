@@ -33,6 +33,8 @@ void initSensors(){
   pinMode(finPosStopPin, INPUT_PULLUP);
   pinMode(finNegStopPin, INPUT_PULLUP);
 
+  // pinMode(contactorPin, INPUT);
+
   // initialization pin for end of travel sensors of the WATER VALVE;
   //pinMode(waterValvePosStopPin, INPUT_PULLUP);
   //inMode(waterValveNegStopPin, INPUT_PULLUP);
@@ -55,7 +57,12 @@ void countSensorHallISR(){
   Returns: int, value of speed already converted in RPM;
 */
 int getSpeedReference(){
-  return (analogRead(speedReferencePin)*-1 +1023);
+  
+  if(getControlMode()){
+    return (analogRead(speedReferencePin)*-1 +1023);  
+  }else{
+    return 540;
+  }
 }
 
 /*
@@ -63,6 +70,7 @@ int getSpeedReference(){
   Reads the pulses between this function call and calculate the speed;
   Returns: int, value of speed already converted in RPM;
 */
+
 int getActualSpeed(){
   
   dTime  = millis() - speedSensorLastTime;
@@ -71,7 +79,7 @@ int getActualSpeed(){
   dPulse = speedSensorCount-lastSpeedSensorCount;
   lastSpeedSensorCount = speedSensorCount;
 
-  speedLastValue = 60000*dPulse/dTime;
+  speedLastValue = (60000*dPulse/dTime)/N_MAGNETS;
   // Serial.print("dPulse "); Serial.println(dPulse);
   // Serial.print("dTime  "); Serial.println(dTime);
   //Serial.println(speedLastValue);
@@ -96,11 +104,9 @@ int getActualSpeed(){
   
   // return sum / NUM_SAMPLES;
 
-
   total = total - readings[readIndex];
   readings[readIndex] = speedLastValue;
 
-  int sum; //sums the vector to get average after...
   for (int i = 0; i < numReadings; i++) {
     sum += readings[i]; // add the current element to the sum
   }
@@ -119,11 +125,12 @@ int getActualSpeed(){
   readIndex = readIndex + 1;
   if(readIndex >= numReadings){ readIndex = 0; }
   
-  return sum/numReadings;
+  //Serial.print("actual value avg  "); Serial.println(sum/numReadings);
 
-  // return total / numReadings;
+  // return sum/numReadings;
 
-  // return speedLastValue;
+
+  return speedLastValue;
 }
 
 

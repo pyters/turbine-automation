@@ -22,6 +22,7 @@
 #define motorFin2Pin 51
 #define ledStartPin 23
 #define ledStopPin 25
+#define contactorPin 35
 
 
 
@@ -29,6 +30,7 @@
 #define displayAddress 0x27
 #define displayCol 2
 #define displayLin 16
+#define N_MAGNETS 4
 
 // === GLOBAL VARIABLES
 
@@ -45,6 +47,7 @@ int speedValue_kp =0;
 float alpha = 0; // alpha value, zero for no-filter at all;
 
 int actualSpeed = 0;
+int sum; //sums the vector to get average after...
 
 // moving average filter definitions
 
@@ -74,14 +77,16 @@ int controlActualSpeed;
 int controlReferenceSpeed;
 int controlError;
 int controlHist = 100;
-int controlHistDead = 100;
+int controlHistDead = 50;
 int controlLastState = 0;
 
 // variables used in the ROUTINE.INO
 unsigned long lastTimeMillis1s0 = 0;
 unsigned long lastTimeMillis0s5 = 0;
+unsigned long lastTimeMillis3s0 = 3000;
 int time1s0 = 1000;
 int time0s5 = 500;
+int time3s0 = 3000;
 
 int STATE = 0;  // 0 for INITIALIZATION
                 // 1 for CONTROL
@@ -110,7 +115,7 @@ void setup() {
 void loop() {
   
   // setMotorFins(1); 
-  // STATE = -2;
+  STATE = -3;
   // Serial.println(STATE);
 
   switch (STATE) {
@@ -126,19 +131,34 @@ void loop() {
       STOP();
       break;
 
-    case -1:
-      if ((millis()-lastTimeMillis0s5) > 500){
+    // BELOW CASES ARE ONLY FOR DEBUG;
+    case -1: //DEBU
+      // if ((millis()-lastTimeMillis0s5) > 500){
         
-        lastTimeMillis0s5 = millis();
+      //   lastTimeMillis0s5 = millis();
 
-        actualSpeed = getActualSpeed();
-        lcdDisplaySpeed(actualSpeed);
-        Serial.println(STATE);
-        }
+      //   actualSpeed = getActualSpeed();
+      //   lcdDisplaySpeed(actualSpeed);
+      //   // Serial.println(STATE);
+      //   }
+      display.noBacklight();
       break;
     case -2:
       setMotorFins(1); 
       break;
+
+    case -3:
+      digitalWrite(contactorPin, 0);
+      digitalWrite(motorFin1Pin,0);
+      setStartLed(1);
+      setStopLed(0);
+      delay(5000);
+
+      digitalWrite(contactorPin, 1);
+      digitalWrite(motorFin1Pin,1);
+      setStartLed(0);
+      setStopLed(1);
+      delay(5000);
   }
 
 
