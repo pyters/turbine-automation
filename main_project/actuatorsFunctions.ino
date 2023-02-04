@@ -28,6 +28,8 @@ void initActuators(){
   digitalWrite(ledStopPin, LOW);
 
   pinMode(contactorPin, OUTPUT);
+  digitalWrite(contactorPin, HIGH);
+
 
 
 }
@@ -140,10 +142,10 @@ void setStopLed(int dir){
 */
 
 void setContactor(int dir){
-  if (dir == 1){
-    digitalWrite(ledStopPin, HIGH);
+  if (dir == 0){
+    digitalWrite(contactorPin, HIGH);
   }
   else{
-    digitalWrite(ledStopPin, LOW);
+    digitalWrite(contactorPin, LOW);
   }
 }
