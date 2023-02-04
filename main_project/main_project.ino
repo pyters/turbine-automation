@@ -5,6 +5,7 @@
 // === LIBRARIES
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
+#include <EEPROM.h>
 
 // === PIN MAPPING
 #define speedSensorPin 2
@@ -91,14 +92,20 @@ int controlLastState = 0;
 // variables used in the ROUTINE.INO
 unsigned long lastTimeMillis1s0 = 0;
 unsigned long lastTimeMillis0s5 = 0;
-unsigned long lastTimeMillis3s0 = 3000;
+unsigned long lastTimeMillis2s0 = 0;
+unsigned long lastTimeMillis0s3 = 0;
 int time1s0 = 1000;
 int time0s5 = 500;
-int time3s0 = 3000;
+int time0s3 = 300;
+int time2s0 = 2000;
 
 int STATE = 0;  // 0 for INITIALIZATION
                 // 1 for CONTROL
                 // 2 for STOP
+
+int stateAddressEEPROM = 1;
+int temp_STATE_EEPROM = 0;
+
 
 
 // == Swithes variables (NOT push button types)
@@ -115,6 +122,16 @@ void setup() {
   initSensors();    // sensors initialization
   initActuators() ;  // actuators initialization
 
+  // SPECIAL CONDITION if a new arduino with epprom cleared is flashed.
+  temp_STATE_EEPROM = EEPROM.read(stateAddressEEPROM);
+  if (temp_STATE_EEPROM != 0 && temp_STATE_EEPROM != 1 && temp_STATE_EEPROM != 2 ){
+    STATE = 0;
+  }else{
+    STATE = EEPROM.read(stateAddressEEPROM);
+    
+  }
+  
+  
 
 }
 
@@ -126,6 +143,8 @@ void loop() {
   // setMotorFins(1); 
   // STATE = -3;
   // Serial.println(STATE);
+
+  EEPROM.update(stateAddressEEPROM, STATE);
 
   switch (STATE) {
     case 0:               // INITIALIZATION
@@ -157,20 +176,14 @@ void loop() {
       break;
 
     case -3:
-      digitalWrite(contactorPin, 0);
-      digitalWrite(motorFin1Pin,0);
-      digitalWrite(motorFin2Pin,0);
-      
-      setStartLed(1);
+      setContactor(0);
       setStopLed(0);
-      delay(5000);
-
-      digitalWrite(contactorPin, 1);
-      digitalWrite(motorFin1Pin,1);
-      digitalWrite(motorFin2Pin,1);
-      setStartLed(0);
+      delay(2000);
+      
+      setContactor(1);
       setStopLed(1);
-      delay(5000);
+      delay(2000);
+      
   }
 
 
