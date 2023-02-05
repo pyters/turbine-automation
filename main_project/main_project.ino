@@ -20,11 +20,10 @@
 //#define waterValvePosStopPin 67
 //#define waterValveNegStopPin 66
 //#define finPosSensorPin 62
-#define motorFin1Pin 53 //49
-#define motorFin2Pin 51 //47
+#define motorFin1Pin 53
+#define motorFin2Pin 51
 #define ledStartPin 23
 #define ledStopPin 25
-#define contactorPin 39
 
 
 =======
@@ -39,7 +38,6 @@
 #define displayAddress 0x27
 #define displayCol 2
 #define displayLin 16
-#define N_MAGNETS 4
 
 // === GLOBAL VARIABLES
 
@@ -56,7 +54,6 @@ int speedValue_kp =0;
 float alpha = 0; // alpha value, zero for no-filter at all;
 
 int actualSpeed = 0;
-int sum; //sums the vector to get average after...
 
 // moving average filter definitions
 
@@ -86,18 +83,23 @@ int controlActualSpeed;
 int controlReferenceSpeed;
 int controlError;
 int controlHist = 100;
-int controlHistDead = 50;
+int controlHistDead = 100;
 int controlLastState = 0;
 
 // variables used in the ROUTINE.INO
 unsigned long lastTimeMillis1s0 = 0;
 unsigned long lastTimeMillis0s5 = 0;
+<<<<<<< Updated upstream
 unsigned long lastTimeMillis2s0 = 0;
 unsigned long lastTimeMillis0s3 = 0;
 int time1s0 = 1000;
 int time0s5 = 500;
 int time0s3 = 300;
 int time2s0 = 2000;
+=======
+int time1s0 = 1000;
+int time0s5 = 500;
+>>>>>>> Stashed changes
 
 int STATE = 0;  // 0 for INITIALIZATION
                 // 1 for CONTROL
@@ -117,10 +119,10 @@ int temp;
 // === SETUP, code executed one time since uC started
 void setup() {
 
-  // Serial.begin(9600);  //if needs serial
+  Serial.begin(9600);  //if needs serial
 
   initSensors();    // sensors initialization
-  initActuators() ;  // actuators initialization
+  initActuators();  // actuators initialization
 
   // SPECIAL CONDITION if a new arduino with epprom cleared is flashed.
   temp_STATE_EEPROM = EEPROM.read(stateAddressEEPROM);
@@ -141,7 +143,7 @@ void loop() {
   
 <<<<<<< Updated upstream
   // setMotorFins(1); 
-  // STATE = -3;
+  // STATE = -2;
   // Serial.println(STATE);
 
   EEPROM.update(stateAddressEEPROM, STATE);
@@ -159,21 +161,20 @@ void loop() {
       STOP();
       break;
 
-    // BELOW CASES ARE ONLY FOR DEBUG;
-    case -1: //DEBU
-      // if ((millis()-lastTimeMillis0s5) > 500){
+    case -1:
+      if ((millis()-lastTimeMillis0s5) > 500){
         
-      //   lastTimeMillis0s5 = millis();
+        lastTimeMillis0s5 = millis();
 
-      //   actualSpeed = getActualSpeed();
-      //   lcdDisplaySpeed(actualSpeed);
-      //   // Serial.println(STATE);
-      //   }
-      display.noBacklight();
+        actualSpeed = getActualSpeed();
+        lcdDisplaySpeed(actualSpeed);
+        Serial.println(STATE);
+        }
       break;
     case -2:
       setMotorFins(1); 
       break;
+<<<<<<< Updated upstream
 
     case -3:
       setContactor(0);
@@ -184,6 +185,8 @@ void loop() {
       setStopLed(1);
       delay(2000);
       
+=======
+>>>>>>> Stashed changes
   }
 
 

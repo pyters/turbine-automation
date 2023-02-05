@@ -1,4 +1,5 @@
 bool FLAG_FIN = 0;
+<<<<<<< Updated upstream
 // bool STATUS_INI = 1;
 
 int controlCountContactor = 0;
@@ -14,6 +15,8 @@ bool STOP_MODE_FINISHED_FLAG = 0;
 
 bool MESSAGE_SWAP_FLAG = 0;
 
+=======
+>>>>>>> Stashed changes
 
 //FUNCTIONS TO DEAL WITH 
 
@@ -52,8 +55,7 @@ void INITIALIZATION(){
     lastTimeMillis0s5 = millis();
 
     //actualSpeed = getActualSpeed();
-    actualSpeed = getActualSpeed();
-    lcdDisplaySpeed(actualSpeed);
+    lcdDisplaySpeed(getActualSpeed());
     //Serial.println(STATE);
 
 
@@ -64,30 +66,15 @@ void INITIALIZATION(){
 
 
   if(!getFinEndSensorNegativeStatus()){ // AO ACIONAR O SENSOR...
-    FLAG_FIN = 1;
-    setMotorFins(1);
-
-    // OLD
-    //setMotorFins(0);
-    //setStopLed(0);
+    setMotorFins(0);
     //FLAG_FIN = 1;
   }
-  // START CONTROL ROUTINE MOTOR FIN
 
   if(getFinEndSensorNegativeStatus()){ // SENSOR NAO PRESSIONADO
-    if(FLAG_FIN==0){
-      setMotorFins(-1);
-      FLAG_FIN==0;
-    }
-    if(FLAG_FIN==1){
-      //FLAG_FIN = 0;
-      setMotorFins(0);
-      setStopLed(0);
-    }
-    // OLD
-    // setMotorFins(-1);
-    // FLAG_FIN = 1;
+    setMotorFins(-1);
+    //FLAG_FIN = 1;
   }
+<<<<<<< Updated upstream
 
 
   // condition to start the control. button START + fin negative sensor DESACTIVATED + 
@@ -96,6 +83,13 @@ void INITIALIZATION(){
       FLAG_FIN = 0;
       // setStartLed(1);
       // STATUS_INI = 0;
+=======
+  
+  
+  if(getStartButtonStatus() && !getFinEndSensorNegativeStatus()){
+      STATE = 1; //CHANGE TO 1!!!!    
+      setStartLed(1);
+>>>>>>> Stashed changes
   }
 
 
@@ -148,10 +142,16 @@ void CONTROL(){
     //Serial.print("DT 0.5s = "); Serial.println(millis()-lastTimeMillis0s5);  
     lastTimeMillis0s5 = millis();
     
-    CONTROL_LOGIC_DZ();
+    CONTROL_LOGIC();
 
+<<<<<<< Updated upstream
     lcdDisplaySpeed(controlActualSpeed);  
    
+=======
+    lcdDisplaySpeed(controlActualSpeed);
+    Serial.println(FLAG_FIN);
+
+>>>>>>> Stashed changes
   }
   
   
@@ -186,6 +186,7 @@ void STOP(){
     setStartLed(0);
     setStopLed(1);
 
+<<<<<<< Updated upstream
 
   // RETURN THE FIN MOTOR TO HOME POSITION;
   if(!getFinEndSensorNegativeStatus()){ // AMOTOR FIM DE CURSO
@@ -250,18 +251,31 @@ void STOP(){
       STOP_BUTTON_FLAG = 0;
       STOP_PHASE_FAULT_FLAG = 0;
     }
+=======
+///0.5s time slot
+  if ((millis()-lastTimeMillis0s5) > time0s5){
+    //Serial.print("DT 0.5s = "); Serial.println(millis()-lastTimeMillis0s5);  
+    lastTimeMillis0s5 = millis();
+    lcdDisplayMessage("STOP", "MODE");
+
+>>>>>>> Stashed changes
   }    
 
 }
 
 
+<<<<<<< Updated upstream
 
 void CONTROL_LOGIC_DZ(){
+=======
+void CONTROL_LOGIC(){
+>>>>>>> Stashed changes
 
     controlActualSpeed = getActualSpeed();
     controlReferenceSpeed = getSpeedReference();
     controlError = controlReferenceSpeed - controlActualSpeed;
 
+<<<<<<< Updated upstream
     
     // Serial.print("erro   =");Serial.println(controlError);
     
@@ -318,3 +332,22 @@ void CONTROL_LOGIC_DZ(){
 //     }  
 
 // }
+=======
+    if((controlError > controlHist)){
+        if(controlLastState != 1){
+            Serial.println("entrou");
+            controlLastState = 1;
+            //setMotorFins(0); delay(100);
+            setMotorFins(1);
+        }
+    }
+    if((controlError < controlHist)){
+        if(controlLastState != -1){
+            controlLastState = -1;
+            //setMotorFins(0); delay(100);
+            setMotorFins(-1);
+        }
+    }  
+
+}
+>>>>>>> Stashed changes

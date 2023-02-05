@@ -11,7 +11,6 @@
 */
 void initActuators(){
   // set the initial configs for the LCD display
-  // display.begin(displayCol, displayLin);
   display.init();       //  initializatiton of the LCD display
   display.backlight();  //  turn on the backlight of the display
   display.clear();      //  cleans the display
@@ -27,9 +26,12 @@ void initActuators(){
   pinMode(ledStopPin, OUTPUT);
   digitalWrite(ledStopPin, LOW);
 
+<<<<<<< Updated upstream
   pinMode(contactorPin, OUTPUT);
   digitalWrite(contactorPin, HIGH);
 
+=======
+>>>>>>> Stashed changes
 
   // Fin motors pins
   pinMode(motorFin1Pin, OUTPUT);
@@ -191,6 +193,7 @@ void setStopLed(int dir){
     digitalWrite(ledStopPin, LOW);
   }
 }
+<<<<<<< HEAD
 
 /*
   SET the CONTACTOR to connect the gerator into the AC LINE;
@@ -208,3 +211,5 @@ void setContactor(int dir){
 }
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> parent of ee754d6 (commit with editions in willian house)
