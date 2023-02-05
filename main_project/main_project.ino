@@ -55,7 +55,7 @@ int sum; //sums the vector to get average after...
 
 // moving average filter definitions
 
-const bool IS_FILTER = 1; // 0 for NON-FILTER, 1 for FILTER;
+const bool IS_FILTER = 0; // 0 for NON-FILTER, 1 for FILTER;
 const int windowSize = 4; // the size of the moving window
 int readings[windowSize];  // an array to store the last N readings
 int index = 0;             // the current index in the array
@@ -90,11 +90,13 @@ unsigned long lastTimeMillis0s5 = 0;
 unsigned long lastTimeMillis2s0 = 0;
 unsigned long lastTimeMillis0s3 = 0;
 unsigned long watchDogTimeMillis = 0;
+unsigned long lastTimeMillis10s0 = 0;
 int time1s0 = 1000;
 int time0s5 = 500;
 int time0s3 = 300;
 int time2s0 = 2000;
 int time0s6 = 600;
+int time10s0 = 10000;
 
 int STATE = 0;  // 0 for INITIALIZATION
                 // 1 for CONTROL
@@ -122,6 +124,7 @@ bool STOP_MODE_FINISHED_FLAG = 0;
 
 bool MESSAGE_SWAP_FLAG = 0;
 
+bool STOP_PHASE_FAULT_AUTO_RESTART_FLAG = 0;
 
 
 // == Swithes variables (NOT push button types)

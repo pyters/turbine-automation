@@ -1,5 +1,6 @@
 //FUNCTIONS TO DEAL WITH 
 
+
 void INITIALIZATION(){
 
   if(getPhaseFaultCondition()){
@@ -73,10 +74,19 @@ void INITIALIZATION(){
   }
 
 
-  // condition to start the control. button START + fin negative sensor DESACTIVATED + 
-  if(getStartButtonStatus() && (FLAG_FIN==1) && (getFinEndSensorNegativeStatus())){
+  // condition to start by START BUTTON;
+  if(getStartButtonStatus() && (FLAG_FIN==1) && getFinEndSensorNegativeStatus()){
       STATE = 1; //CHANGE TO 1!!!!  
       FLAG_FIN = 0;
+      // setStartLed(1);
+      // STATUS_INI = 0;
+  }
+
+  // condition to start BY PHASE FAULT AUTO RESTART 
+  if(STOP_PHASE_FAULT_AUTO_RESTART_FLAG && (FLAG_FIN==1) && (getFinEndSensorNegativeStatus())){
+      STATE = 1; //CHANGE TO 1!!!!  
+      FLAG_FIN = 0;
+      STOP_PHASE_FAULT_AUTO_RESTART_FLAG = 0;
       // setStartLed(1);
       // STATUS_INI = 0;
   }
@@ -215,7 +225,7 @@ void STOP(){
         lcdDisplayMessage("== STOP MODE ==", "FALTA DE FALSE");
         MESSAGE_SWAP_FLAG = 0;
       }else{
-        lcdDisplayMessage("== STOP MODE ==", "PRESSIONE START");
+        lcdDisplayMessage("== STOP MODE ==", "ESPERA RETORNO");
         MESSAGE_SWAP_FLAG = 1;
       }
     }
@@ -244,6 +254,16 @@ void STOP(){
     
   }
 
+  // 10s slot time for auto check for phase fault
+  if ((millis()-lastTimeMillis10s0) > 2000){
+    lastTimeMillis10s0 = millis();
+    if (!STOP_MODE_FINISHED_FLAG && !getPhaseFaultCondition()){ // se a rotina terminou e nao tem mais phase condition
+       STOP_PHASE_FAULT_AUTO_RESTART_FLAG = 1;
+    }
+    Serial.println(STOP_PHASE_FAULT_AUTO_RESTART_FLAG);
+    
+  }
+
 
 
 // so deixar apertar start se o a falta de fase estiver desacionada;
@@ -253,8 +273,17 @@ void STOP(){
       STOP_BUTTON_FLAG = 0;
       STOP_PHASE_FAULT_FLAG = 0;
       STOP_FIN_FLAG = 0;
+      STOP_PHASE_FAULT_AUTO_RESTART_FLAG = 0;
     }
   }    
+
+
+  if (STOP_PHASE_FAULT_AUTO_RESTART_FLAG && !STOP_BUTTON_FLAG && !STOP_FIN_FLAG){
+      STATE = 0;
+      STOP_BUTTON_FLAG = 0;
+      STOP_PHASE_FAULT_FLAG = 0;
+      STOP_FIN_FLAG = 0;
+  }
 
 }
 
@@ -298,27 +327,3 @@ void CONTROL_LOGIC_DZ(){
     }
 
 }
-
-// void CONTROL_LOGIC(){
-
-//     controlActualSpeed = getActualSpeed();
-//     controlReferenceSpeed = getSpeedReference();
-//     controlError = controlReferenceSpeed - controlActualSpeed;
-
-//     if((controlError > controlHist)){
-//         if(controlLastState != 1){
-//             Serial.println("entrou");
-//             controlLastState = 1;
-//             //setMotorFins(0); delay(100);
-//             setMotorFins(1);
-//         }
-//     }
-//     if((controlError < controlHist)){
-//         if(controlLastState != -1){
-//             controlLastState = -1;
-//             //setMotorFins(0); delay(100);
-//             setMotorFins(-1);
-//         }
-//     }  
-
-// }
