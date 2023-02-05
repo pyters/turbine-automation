@@ -6,6 +6,8 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <EEPROM.h>
+#include<avr/wdt.h>
+
 
 // === PIN MAPPING
 #define speedSensorPin 2
@@ -16,28 +18,22 @@
 #define controlModePin 16
 #define finPosStopPin 69
 #define finNegStopPin 68
-<<<<<<< Updated upstream
 //#define waterValvePosStopPin 67
 //#define waterValveNegStopPin 66
 //#define finPosSensorPin 62
-#define motorFin1Pin 53
-#define motorFin2Pin 51
+#define motorFin1Pin 53 //49
+#define motorFin2Pin 51 //47
 #define ledStartPin 23
 #define ledStopPin 25
+#define contactorPin 39
 
 
-=======
-#define waterValvePosStopPin 67
-#define waterValveNegStopPin 66
-#define finPosSensorPin 62
-#define motorFin1Pin 53
-#define motorFin2Pin 51
->>>>>>> Stashed changes
 
 // === CONSTANTS
 #define displayAddress 0x27
 #define displayCol 2
 #define displayLin 16
+#define N_MAGNETS 4
 
 // === GLOBAL VARIABLES
 
@@ -45,24 +41,26 @@
 volatile unsigned int speedSensorCount = 0;          // to count the pulses of the speed sensor
 unsigned long lastSpeedSensorCount = 0;  // to be used as delta pulse count for speed calculationio
 unsigned long speedSensorLastTime = 0;       // to be used as delta time for speed calculation
-int dTime = 0;          // used in getActualSpeed function                
-int dPulse = 0;         // used in getActualSpeed function
-int speedLastValue = 0; // used in getActualSpeed function
+unsigned long dTime = 0;          // used in getActualSpeed function                
+unsigned long dPulse = 0;         // used in getActualSpeed function
+unsigned long speedLastValue = 0; // used in getActualSpeed function
 
 int speedValue_k =0;    // used for filter;
 int speedValue_kp =0;
 float alpha = 0; // alpha value, zero for no-filter at all;
 
 int actualSpeed = 0;
+int sum; //sums the vector to get average after...
+
 
 // moving average filter definitions
 
-const int numReadings  = 6; // 1 for no filter condition
-int readings [numReadings];
-int readIndex  = 0;
-long total  = 0;
-
-//int refSpeed = 0;
+const bool IS_FILTER = 1; // 0 for NON-FILTER, 1 for FILTER;
+const int windowSize = 4; // the size of the moving window
+int readings[windowSize];  // an array to store the last N readings
+int index = 0;             // the current index in the array
+int total = 0;             // the running total of the readings
+int average = 0;           // the average of the readings
 
 
 // variables for push buttons
@@ -83,30 +81,46 @@ int controlActualSpeed;
 int controlReferenceSpeed;
 int controlError;
 int controlHist = 100;
-int controlHistDead = 100;
+int controlHistDead = 50;
 int controlLastState = 0;
 
 // variables used in the ROUTINE.INO
 unsigned long lastTimeMillis1s0 = 0;
 unsigned long lastTimeMillis0s5 = 0;
-<<<<<<< Updated upstream
 unsigned long lastTimeMillis2s0 = 0;
 unsigned long lastTimeMillis0s3 = 0;
+unsigned long watchDogTimeMillis = 0;
 int time1s0 = 1000;
 int time0s5 = 500;
 int time0s3 = 300;
 int time2s0 = 2000;
-=======
-int time1s0 = 1000;
-int time0s5 = 500;
->>>>>>> Stashed changes
+int time0s6 = 600;
 
 int STATE = 0;  // 0 for INITIALIZATION
                 // 1 for CONTROL
                 // 2 for STOP
 
-int stateAddressEEPROM = 1;
+const int stateAddressEEPROM = 1;
+const int stopButtonAddressEEPROM = 2;
+const int stopPhaseFaultAddressEEPROM = 3;
+const int stopFinAddressEEPROM = 4;
 int temp_STATE_EEPROM = 0;
+
+
+bool FLAG_FIN = 0;
+// bool STATUS_INI = 1;
+
+int controlCountContactor = 0;
+int COUNT_STABLE_CONTACTOR = 5;
+bool STABLE_CONTROL_CONTACTOR_FLAG = 0;
+
+bool STOP_BUTTON_FLAG = 0;
+bool STOP_PHASE_FAULT_FLAG = 0;
+bool STOP_FIN_FLAG = 0;
+
+bool STOP_MODE_FINISHED_FLAG = 0;
+
+bool MESSAGE_SWAP_FLAG = 0;
 
 
 
@@ -120,9 +134,10 @@ int temp;
 void setup() {
 
   Serial.begin(9600);  //if needs serial
+  wdt_disable();
 
   initSensors();    // sensors initialization
-  initActuators();  // actuators initialization
+  initActuators() ;  // actuators initialization
 
   // SPECIAL CONDITION if a new arduino with epprom cleared is flashed.
   temp_STATE_EEPROM = EEPROM.read(stateAddressEEPROM);
@@ -130,9 +145,19 @@ void setup() {
     STATE = 0;
   }else{
     STATE = EEPROM.read(stateAddressEEPROM);
-    
+    STOP_BUTTON_FLAG = EEPROM.read(stopButtonAddressEEPROM);
+    STOP_PHASE_FAULT_FLAG = EEPROM.read(stopPhaseFaultAddressEEPROM);
+    STOP_FIN_FLAG = EEPROM.read(stopFinAddressEEPROM);
   }
   
+
+  for (int i = 0; i < windowSize; i++) {
+    readings[i] = 0;      // initialize all readings to zero
+  }
+
+
+  //ENABLE watch dog 2 seconds
+  wdt_enable(WDTO_2S);
   
 
 }
@@ -141,12 +166,26 @@ void setup() {
 // === LOOP, code executed in loop after the SETUP part
 void loop() {
   
-<<<<<<< Updated upstream
   // setMotorFins(1); 
-  // STATE = -2;
-  // Serial.println(STATE);
+  // STATE = -3;
+  // Serial.println(STOP_PHASE_FAULT_FLAG);
 
+  // EEPROM update only writes if the value is different, saving EEPROM cycles
   EEPROM.update(stateAddressEEPROM, STATE);
+  EEPROM.update(stopButtonAddressEEPROM, STOP_BUTTON_FLAG);
+  EEPROM.update(stopPhaseFaultAddressEEPROM, STOP_PHASE_FAULT_FLAG);
+  EEPROM.update(stopFinAddressEEPROM, STOP_FIN_FLAG);
+
+
+  //watchdog resets each .6s
+  ///.6s time slot
+  if ((millis()-watchDogTimeMillis) > 600){
+    
+    //things that have a 1s period;
+    watchDogTimeMillis = millis();
+    wdt_reset();
+  }
+
 
   switch (STATE) {
     case 0:               // INITIALIZATION
@@ -161,32 +200,8 @@ void loop() {
       STOP();
       break;
 
-    case -1:
-      if ((millis()-lastTimeMillis0s5) > 500){
-        
-        lastTimeMillis0s5 = millis();
-
-        actualSpeed = getActualSpeed();
-        lcdDisplaySpeed(actualSpeed);
-        Serial.println(STATE);
-        }
-      break;
-    case -2:
-      setMotorFins(1); 
-      break;
-<<<<<<< Updated upstream
-
-    case -3:
-      setContactor(0);
-      setStopLed(0);
-      delay(2000);
+    // BELOW CASES ARE ONLY FOR DEBUG
       
-      setContactor(1);
-      setStopLed(1);
-      delay(2000);
-      
-=======
->>>>>>> Stashed changes
   }
 
 
@@ -292,27 +307,6 @@ void loop() {
   //setDisplay(getSpeedReference(), getActualSpeed(), 1);  // * SHALL BE INSIDE writeOutputs() after debugging...
   */
 
-=======
-  delay(100);
-
-  lcdDisplaySpeed();
-
-  if(getStartButtonStatus){
-    digitalWrite(motorFin1Pin, HIGH);
-    digitalWrite(motorFin1Pin, LOW);
-    delay(500); 
-  }
-
-  if(getStartButtonStatus){
-    digitalWrite(motorFin1Pin, LOW);
-    digitalWrite(motorFin1Pin, HIGH);
-    delay(500);
-  }
-  
-  digitalWrite(motorFin1Pin, LOW);
-  digitalWrite(motorFin1Pin, LOW);
-    
->>>>>>> Stashed changes
 }
 
 

@@ -33,6 +33,8 @@ void initSensors(){
   pinMode(finPosStopPin, INPUT_PULLUP);
   pinMode(finNegStopPin, INPUT_PULLUP);
 
+  // pinMode(contactorPin, INPUT);
+
   // initialization pin for end of travel sensors of the WATER VALVE;
   //pinMode(waterValvePosStopPin, INPUT_PULLUP);
   //inMode(waterValveNegStopPin, INPUT_PULLUP);
@@ -54,22 +56,13 @@ void countSensorHallISR(){
   processing in it;
   Returns: int, value of speed already converted in RPM;
 */
-<<<<<<< Updated upstream
 int getSpeedReference(){
-<<<<<<< HEAD
   
   if(getControlMode()){
     return (analogRead(speedReferencePin)*-1 +1023);  
   }else{
     return 540;
   }
-=======
-int getReference(){
-  return analogRead(speedReferencePin)*2 - 1024;
->>>>>>> Stashed changes
-=======
-  return (analogRead(speedReferencePin)*-1 +1023);
->>>>>>> parent of ee754d6 (commit with editions in willian house)
 }
 
 /*
@@ -77,67 +70,37 @@ int getReference(){
   Reads the pulses between this function call and calculate the speed;
   Returns: int, value of speed already converted in RPM;
 */
+
 int getActualSpeed(){
   
   dTime  = millis() - speedSensorLastTime;
   speedSensorLastTime = millis();
 
+  // RAW calculation
   dPulse = speedSensorCount-lastSpeedSensorCount;
   lastSpeedSensorCount = speedSensorCount;
 
-  speedLastValue = 60000*dPulse/dTime;
-  // Serial.print("dPulse "); Serial.println(dPulse);
-  // Serial.print("dTime  "); Serial.println(dTime);
-  //Serial.println(speedLastValue);
-  // updating the variables for next loop
-  //speedSensorCountLastTime = speedSensorCount;
+  // RAW value of the speed
+  speedLastValue = (60000*dPulse/dTime)/N_MAGNETS;
+
+  if(IS_FILTER){ // if filter is activated
+    
+    total = total - readings[index];    // Remove the oldest entry from the sum
+    readings[index] = speedLastValue;   // Add the newest reading to the window
+    total = total + speedLastValue;     // Add the newest reading to the sum
+    index = (index+1) % windowSize;     // Increment the index, and wrap to 0 if it exceeds the window size
+    average = total / windowSize ;      // Divide the sum of the window by the window size for the result
+
+
+    delayMicroseconds(1); // by some reason this function needs a small delay to work, seems like a bug.
+    return average;
   
-  // speedValue_k = speedLastValue;
-  // speedValue_k = alpha*speedValue_kp+(1+alpha)*speedValue_k;
-  // speedValue_kp = speedValue_k;
+  }else{
+    delayMicroseconds(1);   // by some reason this function needs a small delay to work, seems like a bug.
+    return speedLastValue;
 
-  //Serial.print("speed  "); Serial.println(speedLastValue);
-  //Serial.print("speed  "); Serial.println(speedValue_k);
-
-  // sum -= samples[index]; // subtract the oldest sample from the sum
-  // samples[index] = speedLastValue; // store the current sample
-  // sum += speedLastValue; // add the current sample to the sum
-  // index = (index + 1) % NUM_SAMPLES; // increment the index and wrap around
-  //int average = sum / NUM_SAMPLES; // calculate the average
-  // use the value of 'average' as needed  
-  // Serial.print("raw speed "); Serial.println(speedLastValue);
-  // Serial.print("average   "); Serial.println(sum / NUM_SAMPLES);
-  
-  // return sum / NUM_SAMPLES;
-
-
-  total = total - readings[readIndex];
-  readings[readIndex] = speedLastValue;
-
-  int sum; //sums the vector to get average after...
-  for (int i = 0; i < numReadings; i++) {
-    sum += readings[i]; // add the current element to the sum
   }
-
-  // Serial.print(readings[0]); Serial.print(",");
-  // Serial.print(readings[1]); Serial.print(",");
-  // Serial.print(readings[2]); Serial.print(",");
-  // Serial.print(readings[3]); Serial.print(",");
-  // Serial.print(readings[4]); Serial.print(",");
-  // Serial.println("");
-
-  //total = total + readings[readIndex];
-
-  // Serial.print("total depois "); Serial.println(total);
-
-  readIndex = readIndex + 1;
-  if(readIndex >= numReadings){ readIndex = 0; }
   
-  return sum/numReadings;
-
-  // return total / numReadings;
-
-  // return speedLastValue;
 }
 
 

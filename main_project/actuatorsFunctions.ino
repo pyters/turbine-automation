@@ -11,6 +11,7 @@
 */
 void initActuators(){
   // set the initial configs for the LCD display
+  // display.begin(displayCol, displayLin);
   display.init();       //  initializatiton of the LCD display
   display.backlight();  //  turn on the backlight of the display
   display.clear();      //  cleans the display
@@ -26,44 +27,14 @@ void initActuators(){
   pinMode(ledStopPin, OUTPUT);
   digitalWrite(ledStopPin, LOW);
 
-<<<<<<< Updated upstream
   pinMode(contactorPin, OUTPUT);
   digitalWrite(contactorPin, HIGH);
 
-=======
->>>>>>> Stashed changes
 
-  // Fin motors pins
-  pinMode(motorFin1Pin, OUTPUT);
-  pinMode(motorFin2Pin, OUTPUT);
+
 }
 // ---------------------- //
-/*
-  This function automates the tasks of reading REFERENCE and ACTUAL SPEEDS and write on the display.
-  returns: void
-*/
-void lcdDisplaySpeed(){
-  // reading the reference and actual speed... 
-  // By some reason when input it direcly in below sprintf function, the pushbuttom interruption does not works well...
-  refSpeed = getReference();
-  actualSpeed = getActualSpeed();
 
-  sprintf(line0, "REF. [RPM]  %4u", refSpeed);  // use %03u for leading zero or %3u for no-leading zero.
-  display.setCursor(0, 0);                      // set the cursor to line 0, column 0
-  display.print(line0);                         // print the buffer line0
-  
-  // LINE 1 of the display formatting, same idea of the LINE 0
-  sprintf(line1, "VELOCIDADE  %4u", actualSpeed);
-  display.setCursor(0, 1);
-  display.print(line1);
-}
-
-
-// --------------------- //
-// BELOW FUNCTION DOES NOT WORK WELL WITH INTERRUPTION.
-// I HAVE ABANDONED IT
-
-/*
 /*
   set the LCD display accordingly to the inputs.
   > refValue:     the reference value that will be displayed in the first line;
@@ -71,7 +42,6 @@ void lcdDisplaySpeed(){
   > controlMode:  0-Manual mode, 1-Speed control mode. Only changes the display information (% or RPM)  
   Returns nothing.
 */
-<<<<<<< Updated upstream
 
 void lcdDisplaySpeed(int actualSpeed){
   // reading the reference and actual speed... 
@@ -86,14 +56,6 @@ void lcdDisplaySpeed(int actualSpeed){
   //Serial.print("value input function    "); Serial.println(actualSpeed);
 
   sprintf(line0, "REF. [RPM]  %4u", refSpeed);  // use %03u for leading zero or %3u for no-leading zero.
-=======
-/*
-int setSpeedDisplay(int refValue, int actualValue){
-  
-    
-  // LINE 0 of the display formatting
-  sprintf(line0, "REF. [RPM]  %4u", refValue);  // use %03u for leading zero or %3u for no-leading zero.
->>>>>>> Stashed changes
   display.setCursor(0, 0);                      // set the cursor to line 0, column 0
   display.print(line0);                         // print the buffer line0
   //Serial.println(line0);
@@ -101,30 +63,9 @@ int setSpeedDisplay(int refValue, int actualValue){
   sprintf(line1, "ROTACAO     %4u", actualSpeed);
   display.setCursor(0, 1);
   display.print(line1);
-<<<<<<< Updated upstream
   //Serial.println(line1);
-=======
-  } else {
-    // if the program is working on MANUAL CONTROL mode, show this in the display
-
-    // LINE 0 of the display formatting, same idea of the formatting for the speed control above
-    sprintf(line0, "REF. [%%]     %03u", refValue); 
-    display.setCursor(0, 0);
-    display.print(line0);
-    
-    // LINE 1 of the display formatting, same idea of the LINE 0
-    sprintf(line1, "POSICAO      %03u", actualValue);
-    display.setCursor(0, 1);
-    display.print(line1);
-    
-  } 
-  
-  return 0;
->>>>>>> Stashed changes
 }
-*/
 
-<<<<<<< Updated upstream
 
 void lcdDisplayMessage(char lin0[16], char lin1[16]){
   
@@ -193,7 +134,6 @@ void setStopLed(int dir){
     digitalWrite(ledStopPin, LOW);
   }
 }
-<<<<<<< HEAD
 
 /*
   SET the CONTACTOR to connect the gerator into the AC LINE;
@@ -209,7 +149,3 @@ void setContactor(int dir){
     digitalWrite(contactorPin, LOW);
   }
 }
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> parent of ee754d6 (commit with editions in willian house)
